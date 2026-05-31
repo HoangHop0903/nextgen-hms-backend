@@ -20,7 +20,12 @@ class Settings(BaseSettings):
     
     @property
     def sqlserver_uri(self) -> str:
-        # Using pyodbc with Windows Authentication
+        # Check if we have a cloud database URL (e.g. from Render/Supabase)
+        db_url_cloud = os.getenv("DATABASE_URL")
+        if db_url_cloud:
+            return db_url_cloud
+            
+        # Local fallback using pyodbc with Windows Authentication
         import urllib.parse
         return f"mssql+pyodbc://{self.SQLSERVER_HOST}/{self.SQLSERVER_DB}?driver=SQL+Server&Trusted_Connection=yes"
         
