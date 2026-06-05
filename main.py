@@ -3,7 +3,38 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.api.v1 import api_router
 
-app = FastAPI(title="NextGen HMS API")
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Create tables and admin account
+    try:
+        from app.core.database import Base, engine, SessionLocal
+        from app.models.models import TaiKhoan
+        import app.models.models
+        
+        Base.metadata.create_all(bind=engine)
+        
+        db = SessionLocal()
+        admin = db.query(TaiKhoan).filter(TaiKhoan.TenDangNhap == 'admin').first()
+        if not admin:
+            new_admin = TaiKhoan(
+                MaTaiKhoan='TKADMIN',
+                TenDangNhap='admin',
+                MatKhau='admin',
+                Email='admin@nextgen.com',
+                VaiTro='ADMIN',
+                TrangThai=True
+            )
+            db.add(new_admin)
+            db.commit()
+        db.close()
+    except Exception as e:
+        print("Database initialization error:", e)
+        
+    yield
+
+app = FastAPI(title="NextGen HMS API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
