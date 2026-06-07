@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Date, Time, Numeric, DateTime, ForeignKey, Integer, NVARCHAR
+from sqlalchemy import Column, String, Boolean, Date, Time, Numeric, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -25,12 +25,12 @@ class BenhNhan(Base):
     MaBenhNhan = Column(String(10), primary_key=True)
     MaTaiKhoan = Column(String(10), ForeignKey('TaiKhoan.MaTaiKhoan'))
     MaNguoiNha = Column(String(10), ForeignKey('NguoiNha.MaNguoiNha'))
-    HoTen = Column(NVARCHAR(100), nullable=False)
+    HoTen = Column(String(100), nullable=False)
     NgaySinh = Column(Date)
     GioiTinh = Column(String(10))
     CCCD = Column(String(20))
     SDT = Column(String(15))
-    DiaChi = Column(NVARCHAR(255))
+    DiaChi = Column(String(255))
     SoBHYT = Column(String(30))
     TienSuDiUng = Column(String(255))
     AnhDaiDien = Column(String(255))
@@ -147,7 +147,7 @@ class DatLichKham(Base):
     MaBangGia = Column(String(10), ForeignKey('BangGiaKham.MaBangGia'))
     NgayDat = Column(DateTime)
     KhungGio = Column(String(10))  # VD: "09:00", "09:30"
-    LyDoKham = Column(NVARCHAR(255))
+    LyDoKham = Column(String(255))
     TrangThai = Column(String(30))
     LoaiDat = Column(String(30))
     
@@ -184,10 +184,10 @@ class PhieuKham(Base):
     MaBacSi = Column(String(10), ForeignKey('BacSi.MaBacSi'))
     MaPhong = Column(String(10), ForeignKey('PhongKham.MaPhong'))
     NgayKham = Column(DateTime)
-    TrieuChung = Column(NVARCHAR(255))
-    ChanDoan = Column(NVARCHAR(255))
-    KetLuan = Column(NVARCHAR(255))
-    GhiChu = Column(NVARCHAR(255))
+    TrieuChung = Column(String(255))
+    ChanDoan = Column(String(255))
+    KetLuan = Column(String(255))
+    GhiChu = Column(String(255))
     
     benhnhan = relationship("BenhNhan")
     bacsi = relationship("BacSi")
@@ -207,7 +207,7 @@ class DonThuoc(Base):
     MaDonThuoc = Column(String(10), primary_key=True)
     MaPhieuKham = Column(String(10), ForeignKey('PhieuKham.MaPhieuKham'))
     NgayKe = Column(DateTime)
-    GhiChu = Column(NVARCHAR(255))
+    GhiChu = Column(String(255))
     
     phieukham = relationship("PhieuKham")
 
@@ -227,7 +227,7 @@ class YeuCauHoTro(Base):
     __tablename__ = 'YeuCauHoTro'
     MaYeuCau = Column(String(10), primary_key=True)
     MaBenhNhan = Column(String(10), ForeignKey('BenhNhan.MaBenhNhan'))
-    NoiDung = Column(NVARCHAR(500))
+    NoiDung = Column(String(500))
     NgayGui = Column(DateTime)
     TrangThai = Column(String(30))
     
@@ -238,7 +238,7 @@ class PhanHoiHoTro(Base):
     MaPhanHoi = Column(String(10), primary_key=True)
     MaYeuCau = Column(String(10), ForeignKey('YeuCauHoTro.MaYeuCau'))
     MaNhanVien = Column(String(10), ForeignKey('NhanVien.MaNhanVien'))
-    NoiDung = Column(NVARCHAR(500))
+    NoiDung = Column(String(500))
     NgayPhanHoi = Column(DateTime)
     
     yeucau = relationship("YeuCauHoTro")
@@ -251,8 +251,8 @@ class HoaDon(Base):
     MaDatLich = Column(String(10), ForeignKey('DatLichKham.MaDatLich'))
     TongTien = Column(Numeric(18, 2))
     NgayLap = Column(DateTime)
-    TrangThai = Column(NVARCHAR(50))
-    PhuongThucThanhToan = Column(NVARCHAR(50))
+    TrangThai = Column(String(50))
+    PhuongThucThanhToan = Column(String(50))
     
     benhnhan = relationship("BenhNhan")
     datlich = relationship("DatLichKham")
