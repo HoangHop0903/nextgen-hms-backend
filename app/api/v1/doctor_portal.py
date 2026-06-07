@@ -206,3 +206,62 @@ def create_prescription(req: PrescriptionRequest, doctor: BacSi = Depends(get_cu
         
     db.commit()
     return {"message": "Kê đơn thuốc thành công", "MaDonThuoc": new_dt_id}
+
+@router.get("/patient/{ma_benh_nhan}")
+def get_patient_details(ma_benh_nhan: str, doctor: BacSi = Depends(get_current_doctor), db: Session = Depends(get_db)):
+    bn = db.query(BenhNhan).filter(BenhNhan.MaBenhNhan == ma_benh_nhan).first()
+    if not bn:
+        raise HTTPException(status_code=404, detail="Không tìm thấy bệnh nhân")
+        
+    from app.models.models import HoSoBenhAn
+    hsba = db.query(HoSoBenhAn).filter(HoSoBenhAn.MaBenhNhan == ma_benh_nhan).first()
+    
+    # Lấy lịch sử phiếu khám
+    phieu_khams = db.query(PhieuKham).filter(PhieuKham.MaBenhNhan == ma_benh_nhan).order_by(desc(PhieuKham.NgayKham)).all()
+    history = []
+    for pk in phieu_khams:
+        bs_kham = db.query(BacSi).filter(BacSi.MaBacSi == pk.MaBacSi).first()
+        don_thuoc = db.query(DonThuoc).filter(DonThuoc.MaPhieuKham == pk.MaPhieuKham).first()
+        thuoc_list = []
+        if don_thuoc:
+            chi_tiet = db.query(ChiTietDonThuoc).filter(ChiTietDonThuoc.MaDonThuoc == don_thuoc.MaDonThuoc).all()
+            for ct in chi_tiet:
+                t = db.query(Thuoc).filter(Thuoc.MaThuoc == ct.MaThuoc).first()
+                if t:
+                    thuoc_list.append({
+                        "TenThuoc": t.TenThuoc,
+                        "SoLuong": ct.SoLuong,
+                        "LieuDung": ct.LieuDung,
+                        "SoNgayDung": ct.SoNgayDung
+                    })
+        
+        history.append({
+            "MaPhieuKham": pk.MaPhieuKham,
+            "NgayKham": pk.NgayKham,
+            "BacSiKham": bs_kham.HoTen if bs_kham else "Không rõ",
+            "TrieuChung": pk.TrieuChung,
+            "ChanDoan": pk.ChanDoan,
+            "KetLuan": pk.KetLuan,
+            "DonThuoc": thuoc_list
+        })
+        
+    return {
+        "BenhNhan": {
+            "MaBenhNhan": bn.MaBenhNhan,
+            "HoTen": bn.HoTen,
+            "NgaySinh": bn.NgaySinh.isoformat() if bn.NgaySinh else None,
+            "GioiTinh": bn.GioiTinh,
+            "SDT": bn.SDT,
+            "DiaChi": bn.DiaChi,
+            "SoBHYT": bn.SoBHYT,
+            "TienSuDiUng": bn.TienSuDiUng,
+            "AnhDaiDien": bn.AnhDaiDien
+        },
+        "HoSoBenhAn": {
+            "TienSuBenh": hsba.TienSuBenh if hsba else "",
+            "KetQuaGanNhat": hsba.KetQuaGanNhat if hsba else "",
+            "GhiChu": hsba.GhiChu if hsba else ""
+        },
+        "LichSuKham": history
+    }
+
