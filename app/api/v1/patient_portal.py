@@ -51,15 +51,18 @@ def get_services(db: Session = Depends(get_db)):
 
 @router.get("/doctors")
 def get_doctors(db: Session = Depends(get_db)):
-    bacsi_list = db.query(BacSi).filter(BacSi.TrangThai == True).all()
+    # Optimize query using join instead of looping and querying for each doctor (Fix N+1 query issue)
+    doctors = db.query(BacSi, ChuyenKhoa.TenChuyenKhoa).outerjoin(
+        ChuyenKhoa, BacSi.MaChuyenKhoa == ChuyenKhoa.MaChuyenKhoa
+    ).filter(BacSi.TrangThai == True).all()
+    
     result = []
-    for bs in bacsi_list:
-        ck = db.query(ChuyenKhoa).filter(ChuyenKhoa.MaChuyenKhoa == bs.MaChuyenKhoa).first()
+    for bs, ten_chuyen_khoa in doctors:
         result.append({
             "MaBacSi": bs.MaBacSi,
             "HoTen": bs.HoTen,
             "HocVi": bs.HocVi,
-            "TenChuyenKhoa": ck.TenChuyenKhoa if ck else "Chưa phân khoa",
+            "TenChuyenKhoa": ten_chuyen_khoa if ten_chuyen_khoa else "Chưa phân khoa",
             "AnhDaiDien": bs.AnhDaiDien
         })
     return result
