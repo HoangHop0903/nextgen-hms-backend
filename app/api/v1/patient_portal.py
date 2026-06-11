@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from typing import List, Dict, Any, Optional
@@ -100,7 +100,7 @@ def get_doctor_schedule(ma_bac_si: str, db: Session = Depends(get_db)):
             booked = db.query(DatLichKham.KhungGio).filter(
                 DatLichKham.MaLichLamViec == llv.MaLichLamViec,
                 DatLichKham.KhungGio.isnot(None),
-                DatLichKham.TrangThai != "DaHuy"
+                DatLichKham.TrangThai != "Đã hủy"
             ).all()
             booked_slots = {b.KhungGio.strip() for b in booked if b.KhungGio}
             
@@ -148,7 +148,7 @@ def book_appointment(req: BookRequest, patient: BenhNhan = Depends(get_current_p
     existing = db.query(DatLichKham).filter(
         DatLichKham.MaLichLamViec == req.MaLichLamViec,
         DatLichKham.KhungGio == req.KhungGio,
-        DatLichKham.TrangThai != "DaHuy"
+        DatLichKham.TrangThai != "Đã hủy"
     ).first()
     if existing:
         raise HTTPException(status_code=409, detail="Khung giờ này đã có người đặt. Vui lòng chọn khung giờ khác.")
@@ -167,7 +167,7 @@ def book_appointment(req: BookRequest, patient: BenhNhan = Depends(get_current_p
         NgayDat=datetime.datetime.now(),
         KhungGio=req.KhungGio,
         LyDoKham=req.LyDoKham,
-        TrangThai="ChoDuyet",
+        TrangThai="Chờ xác nhận",
         LoaiDat="Online"
     )
     db.add(new_booking)
@@ -203,7 +203,7 @@ def guest_booking(req: GuestBookingRequest, db: Session = Depends(get_db)):
     existing = db.query(DatLichKham).filter(
         DatLichKham.MaLichLamViec == req.MaLichLamViec,
         DatLichKham.KhungGio == req.KhungGio,
-        DatLichKham.TrangThai != "DaHuy"
+        DatLichKham.TrangThai != "Đã hủy"
     ).first()
     if existing:
         raise HTTPException(status_code=409, detail="Khung giờ này đã có người đặt. Vui lòng chọn khung giờ khác.")
@@ -263,7 +263,7 @@ def guest_booking(req: GuestBookingRequest, db: Session = Depends(get_db)):
         NgayDat=datetime.datetime.now(),
         KhungGio=req.KhungGio,
         LyDoKham=req.LyDoKham,
-        TrangThai="ChoDuyet",
+        TrangThai="Chờ xác nhận",
         LoaiDat="Online"
     )
     db.add(new_booking)

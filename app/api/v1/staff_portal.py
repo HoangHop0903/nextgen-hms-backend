@@ -92,8 +92,8 @@ def create_reception(req: ReceptionRequest, staff: NhanVien = Depends(get_curren
     if not booking:
         raise HTTPException(status_code=404, detail="Không tìm thấy lịch")
         
-    if booking.TrangThai != "DaDuyet":
-        raise HTTPException(status_code=400, detail="Chỉ có thể tiếp nhận lịch đã được duyệt")
+    if booking.TrangThai != "Đã xác nhận":
+        raise HTTPException(status_code=400, detail="Chỉ có thể tiếp nhận lịch đã xác nhận")
         
     import random
     new_ptn_id = f"PTN{random.randint(1000,9999)}"
@@ -107,7 +107,6 @@ def create_reception(req: ReceptionRequest, staff: NhanVien = Depends(get_curren
         TrangThai="DaTiepNhan"
     )
     
-    booking.TrangThai = "DaTiepNhan"
     db.add(new_reception)
     db.commit()
     

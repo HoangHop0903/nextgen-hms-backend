@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from typing import List, Optional
@@ -43,7 +43,7 @@ def get_schedule(doctor: BacSi = Depends(get_current_doctor), db: Session = Depe
     # Lấy bệnh nhân đã tiếp nhận (hoặc đã duyệt) thuộc lịch này
     bookings = db.query(DatLichKham).filter(
         DatLichKham.MaLichLamViec.in_(ma_llv_list),
-        DatLichKham.TrangThai.in_(["DaDuyet", "DaTiepNhan", "DangKham", "HoanThanh"])
+        DatLichKham.TrangThai.in_(["Đã xác nhận", "Hoàn thành"])
     ).order_by(DatLichKham.NgayDat).all()
     
     result = []
