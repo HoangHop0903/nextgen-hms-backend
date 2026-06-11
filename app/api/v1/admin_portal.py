@@ -451,6 +451,8 @@ class BacSiReq(BaseModel):
 
 @router.post('/doctors')
 def create_doctor(req: BacSiReq, db: Session = Depends(get_db)):
+    if db.query(BacSi).filter(BacSi.MaTaiKhoan == req.MaTaiKhoan).first() or db.query(NhanVien).filter(NhanVien.MaTaiKhoan == req.MaTaiKhoan).first():
+        raise HTTPException(status_code=400, detail="Tài khoản này đã được gán cho một nhân sự khác!")
     import random
     new_id = f'BS{random.randint(1000,9999)}'
     bs = BacSi(MaBacSi=new_id, MaTaiKhoan=req.MaTaiKhoan, MaChuyenKhoa=req.MaChuyenKhoa, HoTen=req.HoTen, HocVi=req.HocVi, SDT=req.SDT, TrangThai=True)
@@ -462,6 +464,8 @@ def create_doctor(req: BacSiReq, db: Session = Depends(get_db)):
 def update_doctor(ma_bs: str, req: BacSiReq, db: Session = Depends(get_db)):
     bs = db.query(BacSi).filter(BacSi.MaBacSi == ma_bs).first()
     if not bs: raise HTTPException(404, 'Not found')
+    if req.MaTaiKhoan != bs.MaTaiKhoan and (db.query(BacSi).filter(BacSi.MaTaiKhoan == req.MaTaiKhoan).first() or db.query(NhanVien).filter(NhanVien.MaTaiKhoan == req.MaTaiKhoan).first()):
+        raise HTTPException(status_code=400, detail="Tài khoản này đã được gán cho một nhân sự khác!")
     bs.MaTaiKhoan = req.MaTaiKhoan
     bs.MaChuyenKhoa = req.MaChuyenKhoa
     bs.HoTen = req.HoTen
@@ -494,6 +498,8 @@ class NhanVienReq(BaseModel):
 
 @router.post('/staffs')
 def create_staff(req: NhanVienReq, db: Session = Depends(get_db)):
+    if db.query(BacSi).filter(BacSi.MaTaiKhoan == req.MaTaiKhoan).first() or db.query(NhanVien).filter(NhanVien.MaTaiKhoan == req.MaTaiKhoan).first():
+        raise HTTPException(status_code=400, detail="Tài khoản này đã được gán cho một nhân sự khác!")
     import random
     new_id = f'NV{random.randint(1000,9999)}'
     nv = NhanVien(MaNhanVien=new_id, MaTaiKhoan=req.MaTaiKhoan, HoTen=req.HoTen, ChucVu=req.ChucVu, SDT=req.SDT, TrangThai=True)
@@ -505,6 +511,8 @@ def create_staff(req: NhanVienReq, db: Session = Depends(get_db)):
 def update_staff(ma_nv: str, req: NhanVienReq, db: Session = Depends(get_db)):
     nv = db.query(NhanVien).filter(NhanVien.MaNhanVien == ma_nv).first()
     if not nv: raise HTTPException(404, 'Not found')
+    if req.MaTaiKhoan != nv.MaTaiKhoan and (db.query(BacSi).filter(BacSi.MaTaiKhoan == req.MaTaiKhoan).first() or db.query(NhanVien).filter(NhanVien.MaTaiKhoan == req.MaTaiKhoan).first()):
+        raise HTTPException(status_code=400, detail="Tài khoản này đã được gán cho một nhân sự khác!")
     nv.MaTaiKhoan = req.MaTaiKhoan
     nv.HoTen = req.HoTen
     nv.ChucVu = req.ChucVu
