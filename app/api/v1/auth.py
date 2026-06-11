@@ -68,7 +68,8 @@ async def upload_avatar(file: UploadFile = File(...)):
     file_path = os.path.join("uploads", filename)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    return {"url": f"http://localhost:8000/uploads/{filename}"}
+    # Return the absolute URL pointing to the Render backend
+    return {"url": f"https://nextgen-hms-backend-8r2z.onrender.com/uploads/{filename}"}
 
 @router.put("/profile")
 def update_profile(req: UpdateProfileRequest, db: Session = Depends(get_db), current_user: TaiKhoan = Depends(get_current_user_account)):
